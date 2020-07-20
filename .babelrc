@@ -1,0 +1,38 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "useBuiltIns": "usage",
+        "corejs": 3,
+        "exclude": ["@babel/plugin-transform-regenerator"]
+      }
+    ],
+    "@babel/preset-react"
+  ],
+  "plugins": [
+    [
+      "@babel/plugin-transform-runtime",
+      {
+        "regenerator": false
+      }
+    ],
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "libraryDirectory": "es",
+        "style": "css"
+      }
+    ],
+    [
+      "babel-plugin-styled-components",
+      {
+        "pure": true
+      }
+    ],
+    "@babel/plugin-proposal-class-properties",
+    "react-hot-loader/babel"
+  ],
+  "sourceMaps": "inline"
+}
