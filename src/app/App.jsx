@@ -81,6 +81,5 @@ const StyledWrapper = styled.div`
   width: 100vw;
   height: 100vh;
   display: flex;
-  justify-content: stretch;
-  align-items: stretch;
+  justify-content: center;
 `;

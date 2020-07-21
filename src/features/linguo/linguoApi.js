@@ -19,7 +19,9 @@ export default function createApi({ archon, web3 }) {
         arbitrableContractAddress,
         disputeID,
       }),
-    ]);
+    ]).catch(() => {
+      throw new Error('Invalid dispute');
+    });
 
     metaEvidence.aggregateData = {
       contract: {

@@ -1,5 +1,6 @@
 import React from 'react';
 import t from 'prop-types';
+import styled from 'styled-components';
 import { useLocation } from 'react-router';
 import { withErrorBoundary, useErrorHandler } from 'react-error-boundary';
 import { Alert } from 'antd';
@@ -45,21 +46,34 @@ LinguoEvidenceFetcher.propTypes = {
 
 function ErrorFallback({ error, componentStack, resetErrorBoundary }) {
   return (
-    <Alert
-      type="error"
-      message={<pre>{error.message}</pre>}
-      description={
-        <>
-          <pre>{componentStack}</pre>
-          <div
-            css={`
-              margin: 1rem 0;
-            `}
-          ></div>
-          <button onClick={resetErrorBoundary}>Try again</button>
-        </>
-      }
-    />
+    <div
+      css={`
+        padding: 1rem;
+      `}
+    >
+      <Alert
+        type="error"
+        message={<pre>Error: {error.message}</pre>}
+        css={`
+          width: calc(100vw - 2rem);
+        `}
+        description={
+          <>
+            {process.env.NODE_ENV !== 'production' && (
+              <div>
+                <StyledPre>{componentStack}</StyledPre>
+                <div
+                  css={`
+                    margin-bottom: 2rem;
+                  `}
+                ></div>
+              </div>
+            )}
+            <button onClick={resetErrorBoundary}>Try again</button>
+          </>
+        }
+      />
+    </div>
   );
 }
 
@@ -72,3 +86,9 @@ ErrorFallback.propTypes = {
 export default withErrorBoundary(LinguoEvidenceFetcher, {
   FallbackComponent: ErrorFallback,
 });
+
+const StyledPre = styled.pre`
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+`;

@@ -2,6 +2,8 @@
 # Edit at https://www.gitignore.io/?templates=vim,node,react,visualstudiocode
 
 src.bkp
+*.zip
+*.tar.gz
 
 ### Node ###
 # Logs
