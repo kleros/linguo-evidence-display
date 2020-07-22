@@ -1,8 +1,8 @@
 {
-  "name": "@kleros/linguo",
+  "name": "@kleros/linguo-evidence-display",
   "version": "0.1.0",
   "private": false,
-  "description": "The Linguo user interface.",
+  "description": "The Linguo evidence display interface.",
   "keywords": [
     "blockchain",
     "ethereum",
@@ -10,7 +10,7 @@
     "linguo",
     "translation"
   ],
-  "repository": "https://github.com/kleros/linguo",
+  "repository": "https://github.com/kleros/linguo-evidence-display",
   "license": "MIT",
   "author": "Kleros",
   "type": "module",

@@ -11,7 +11,7 @@ import { getTaskUrl } from '~/features/linguo';
 import useObjectUrl from '~/shared/useObjectUrl';
 import FormattedCryptoCurrency from '~/shared/FormattedCryptoCurrency';
 import FormattedDate from '~/shared/FormattedDate';
-import LinguoEvidenceFetcher from './LinguoEvidenceFetcher';
+import LinguoEvidenceFetcher from '~/shared/LinguoEvidenceFetcher';
 
 export default function LinguoEvidence() {
   return (
@@ -30,7 +30,7 @@ export default function LinguoEvidence() {
           >
             <div
               css={`
-                width: 100vw;
+                width: calc(100vw - 0.5rem);
                 padding: 1rem;
               `}
             >
@@ -44,8 +44,8 @@ export default function LinguoEvidence() {
 }
 
 function LinguoEvidenceDisplay({ data }) {
-  const { metaEvidenceJSONValid: valid, metaEvidenceJSON, aggregateData } = data;
-  const { token, task, contract } = aggregateData ?? {};
+  const { metaEvidenceJSONValid: valid, metaEvidenceJSON, arbitrableInterfaceURI, arbitrableInterfaceMetadata } = data;
+  const { token, task, arbitrableContractAddress } = arbitrableInterfaceMetadata ?? {};
   const { aliases, metadata } = metaEvidenceJSON;
 
   const { title, text } = metadata;
@@ -58,7 +58,12 @@ function LinguoEvidenceDisplay({ data }) {
   const minPrice = normalizeWei(metadata.minPrice, token.decimals);
   const assignedPrice = normalizeWei(task.price, token.decimals);
   const parties = Object.entries(aliases).reduce(
-    (acc, [address, party]) => Object.assign(acc, { [party]: address }),
+    (acc, [address, party]) =>
+      address === 'undefined'
+        ? acc
+        : Object.assign(acc, {
+            [party]: address,
+          }),
     {}
   );
   const translator = parties.Translator;
@@ -85,25 +90,23 @@ function LinguoEvidenceDisplay({ data }) {
           `}
         />
       )}
-      <Typography.Title level={3}>{metaEvidenceJSON.title}</Typography.Title>
-      <Typography.Title level={4}>{metaEvidenceJSON.description}</Typography.Title>
       <Typography.Paragraph>
-        <p>{metaEvidenceJSON.question}</p>
-        <p>
-          <a
-            href={getTaskUrl({
-              contractAddress: contract.address,
+        <a
+          href={
+            arbitrableInterfaceURI ??
+            getTaskUrl({
+              contractAddress: arbitrableContractAddress,
               taskID: task.id,
-            })}
-            target="_blank"
-            rel="noreferrer noopener"
-          >
-            View details in Linguo
-          </a>
-        </p>
+            })
+          }
+          target="_blank"
+          rel="noreferrer noopener"
+        >
+          View task in Linguo
+        </a>
       </Typography.Paragraph>
-      <Typography.Title level={4}>Here is the relevant data:</Typography.Title>
-      <Descriptions bordered column={{ xxl: 3, xl: 3, lg: 3, md: 1, sm: 1, xs: 1 }}>
+      <Typography.Paragraph>Here is the relevant data:</Typography.Paragraph>
+      <Descriptions bordered size="small" column={{ xxl: 3, xl: 3, lg: 3, md: 3, sm: 1, xs: 1 }}>
         <Descriptions.Item label="Quality Tier" span={3}>
           {tier}
         </Descriptions.Item>

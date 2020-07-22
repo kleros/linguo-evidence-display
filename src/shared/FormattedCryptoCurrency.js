@@ -5,6 +5,7 @@ const { fromWei } = Web3.utils;
 
 export default function FormattedCryptoCurrency({ value, decimals, symbol, render }) {
   value = fromWei(value);
+  decimals = typeof decimals === 'string' ? parseInt(decimals, 10) : decimals;
 
   const numberFormatter = new Intl.NumberFormat(undefined, {
     minimumFractionDigits: 2,
@@ -15,8 +16,8 @@ export default function FormattedCryptoCurrency({ value, decimals, symbol, rende
 }
 
 FormattedCryptoCurrency.propTypes = {
-  value: t.oneOfType([t.string]).isRequired,
-  decimals: t.number,
+  value: t.string.isRequired,
+  decimals: t.oneOfType([t.string, t.number]).isRequired,
   symbol: t.string.isRequired,
   render: t.func,
 };
