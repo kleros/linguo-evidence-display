@@ -1,20 +1,13 @@
-import any from 'promise.any';
-import { Linguo, LinguoToken } from '@kleros/contract-deployments/linguo';
-import erc20Abi from '~/assets/abis/ERC20.json';
+import Linguo from '@kleros/linguo-contracts/artifacts/Linguo.json';
 import promiseRetry from '~/shared/promiseRetry';
-
-const ADDRESS_ZERO = '0x0000000000000000000000000000000000000000';
 
 export default function createApi({ archon, web3 }) {
   async function getMetaEvidence({ arbitratorContractAddress, arbitrableContractAddress, disputeID }) {
     const linguoContract = new web3.eth.Contract(Linguo.abi, arbitrableContractAddress);
-    const linguoTokenContract = new web3.eth.Contract(LinguoToken.abi, arbitrableContractAddress);
 
-    const { taskID, price, translatedText } = await any([
-      _tryGetDataFromContract(linguoContract, { arbitrableContractAddress, disputeID }),
-      _tryGetDataFromContract(linguoTokenContract, { arbitrableContractAddress, disputeID }),
-    ]).catch(() => {
-      throw new Error('Invalid dispute');
+    const { taskID, price, translatedText } = await _tryGetDataFromContract(linguoContract, {
+      arbitrableContractAddress,
+      disputeID,
     });
 
     const metaEvidence = await archon.arbitrable.getMetaEvidence(arbitrableContractAddress, taskID, {
@@ -36,34 +29,12 @@ export default function createApi({ archon, web3 }) {
         translatedText,
         price,
       },
+      token: {
+        name: 'Ether',
+        symbol: 'ETH',
+        decimals: 18,
+      },
     });
-
-    const token = metaEvidence.metaEvidenceJSON?.metadata?.token ?? ADDRESS_ZERO;
-
-    if (ADDRESS_ZERO === token) {
-      Object.assign(metaEvidence.arbitrableInterfaceMetadata, {
-        token: {
-          name: 'Ether',
-          symbol: 'ETH',
-          decimals: 18,
-        },
-      });
-    } else {
-      const erc20 = new web3.eth.Contract(erc20Abi, token);
-      const [nameResult, symbolResult, decimalsResult] = await Promise.allSettled([
-        erc20.methods.name().call(),
-        erc20.methods.symbol().call(),
-        erc20.methods.decimals().call(),
-      ]);
-
-      Object.assign(metaEvidence.arbitrableInterfaceMetadata, {
-        token: {
-          name: nameResult.status === 'fulfilled' ? nameResult.value : '<Unknown Name>',
-          symbol: symbolResult.status === 'fulfilled' ? symbolResult.value : '<Unknown Symbol>',
-          decimals: decimalsResult.status === 'fulfilled' ? decimalsResult.value : 18,
-        },
-      });
-    }
 
     return metaEvidence;
   }

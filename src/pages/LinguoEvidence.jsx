@@ -8,7 +8,6 @@ import languages from '~/assets/languages.json';
 import translationTiers from '~/assets/translationTiers.json';
 import { useEtherscanAddress } from '~/features/etherscan';
 import { getTaskUrl } from '~/features/linguo';
-import useObjectUrl from '~/shared/useObjectUrl';
 import FormattedCryptoCurrency from '~/shared/FormattedCryptoCurrency';
 import FormattedDate from '~/shared/FormattedDate';
 import LinguoEvidenceFetcher from '~/shared/LinguoEvidenceFetcher';
@@ -48,7 +47,7 @@ function LinguoEvidenceDisplay({ data }) {
   const { token, task, arbitrableContractAddress } = arbitrableInterfaceMetadata ?? {};
   const { aliases, metadata } = metaEvidenceJSON;
 
-  const { title, text } = metadata;
+  const { title, wordCount, originalTextFile, originalTextUrl } = metadata;
   const tier = translationTiers[metadata.expectedQuality] ?? '<Unknown Tier>';
   const sourceLanguage = languages[metadata.sourceLanguage] ?? '<Unknown Language>';
   const targetLanguage = languages[metadata.targetLanguage] ?? '<Unknown Language>';
@@ -116,10 +115,10 @@ function LinguoEvidenceDisplay({ data }) {
         <Descriptions.Item label="Target Language" span={1.5}>
           {targetLanguage}
         </Descriptions.Item>
-        <Descriptions.Item label="Original Text" span={1.5}>
+        <Descriptions.Item label="Original Text" span={task.originalTextUrl ? 1 : 1.5}>
           <Button
             icon={<DownloadOutlined />}
-            href={useObjectUrl(text)}
+            href={generateUrl(originalTextFile)}
             target="_blank"
             rel="noopener noreferrer"
             css={`
@@ -129,7 +128,24 @@ function LinguoEvidenceDisplay({ data }) {
             View Original Text
           </Button>
         </Descriptions.Item>
-        <Descriptions.Item label="Translated Text" span={1.5}>
+
+        {task.originalTextUrl ? (
+          <Descriptions.Item label="Original Text URL" span={1}>
+            <Button
+              icon={<DownloadOutlined />}
+              href={originalTextUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              css={`
+                width: 12rem;
+              `}
+            >
+              {originalTextUrl}
+            </Button>
+          </Descriptions.Item>
+        ) : null}
+
+        <Descriptions.Item label="Translated Text" span={task.originalTextUrl ? 1 : 1.5}>
           <Button
             icon={<DownloadOutlined />}
             href={generateUrl(task.translatedText)}
@@ -142,7 +158,10 @@ function LinguoEvidenceDisplay({ data }) {
             View Translated Text
           </Button>
         </Descriptions.Item>
-        <Descriptions.Item label="Title" span={3}>
+        <Descriptions.Item label="Word Count" span={1}>
+          {wordCount}
+        </Descriptions.Item>
+        <Descriptions.Item label="Title" span={2}>
           {title}
         </Descriptions.Item>
         <Descriptions.Item label="Deadline" span={3}>
