@@ -1,21 +1,12 @@
 import React from 'react';
 import t from 'prop-types';
 import styled from 'styled-components';
-import { useLocation } from 'react-router';
-import { withErrorBoundary, useErrorHandler } from 'react-error-boundary';
+import { useErrorHandler, withErrorBoundary } from 'react-error-boundary';
 import { Alert } from 'antd';
-import { useLinguoApi } from '~/features/linguo';
+import { useInjectedParams, useLinguoApi } from '~/features/linguo';
 
 function LinguoEvidenceFetcher({ render }) {
-  const { search } = useLocation();
-  const { arbitrableContractAddress, disputeID } = React.useMemo(() => {
-    try {
-      return JSON.parse(decodeURIComponent(search).slice(1));
-    } catch (err) {
-      console.warn('Failed to parse URL params', err);
-      throw err;
-    }
-  }, [search]);
+  const { arbitrableContractAddress, disputeID } = useInjectedParams();
   const linguoApi = useLinguoApi();
 
   const handleError = useErrorHandler();
@@ -26,7 +17,8 @@ function LinguoEvidenceFetcher({ render }) {
     async function getData() {
       setIsLoading(true);
       try {
-        setData(await linguoApi.getMetaEvidence({ arbitrableContractAddress, disputeID }));
+        const metaEvidence = await linguoApi.getMetaEvidence({ arbitrableContractAddress, disputeID });
+        setData(metaEvidence);
       } catch (err) {
         handleError(err);
       } finally {

@@ -15,6 +15,8 @@ export default function createApi({ archon, web3 }) {
         disputeID,
         arbitrableContractAddress,
         arbitratorContractAddress,
+        jsonRpcUrl: web3.currentProvider.url,
+        chainID: web3.currentProvider.chainId,
       },
     });
 
@@ -81,7 +83,6 @@ export default function createApi({ archon, web3 }) {
     const translatedText = translationSubmittedEvents[0]?.returnValues?._translatedText;
 
     // const [_ignored, translator, challenger] = await contract.methods.getTaskParties(taskID).call();
-
     return { taskID, price, translatedText };
   }
 
