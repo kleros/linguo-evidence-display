@@ -1,8 +1,32 @@
 import Linguo from '@kleros/linguo-contracts/artifacts/Linguo.json';
 import promiseRetry from '~/shared/promiseRetry';
 
+const chainIdToTokenParams = {
+  1: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  42: {
+    name: 'Ether',
+    symbol: 'ETH',
+    decimals: 18,
+  },
+  77: {
+    name: 'SPOA',
+    symbol: 'SPOA',
+    decimals: 18,
+  },
+  100: {
+    name: 'xDAI',
+    symbol: 'xDAI',
+    decimals: 18,
+  },
+};
+
 export default function createApi({ archon, web3 }) {
   async function getMetaEvidence({ arbitratorContractAddress, arbitrableContractAddress, disputeID }) {
+    const chainId = await web3.eth.getChainId();
     const linguoContract = new web3.eth.Contract(Linguo.abi, arbitrableContractAddress);
 
     const { taskID, price, translatedText } = await _tryGetDataFromContract(linguoContract, {
@@ -31,11 +55,7 @@ export default function createApi({ archon, web3 }) {
         translatedText,
         price,
       },
-      token: {
-        name: 'Ether',
-        symbol: 'ETH',
-        decimals: 18,
-      },
+      token: chainIdToTokenParams[chainId],
     });
 
     return metaEvidence;
@@ -44,10 +64,11 @@ export default function createApi({ archon, web3 }) {
   async function _tryGetDataFromContract(contract, { disputeID }) {
     const taskID = await contract.methods.disputeIDtoTaskID(disputeID).call();
 
-    const disputeEvents = await _getPastEvents(contract, 'Dispute', {
-      filter: { _disputeID: disputeID },
-      fromBlock: 0,
-    });
+    const disputeEvents =
+      (await _getPastEvents(contract, 'Dispute', {
+        filter: { _disputeID: disputeID },
+        fromBlock: 0,
+      })) ?? [];
 
     if (disputeEvents.length === 0) {
       throw new Error('Invalid dispute');
@@ -59,7 +80,7 @@ export default function createApi({ archon, web3 }) {
       throw new Error('Invalid dispute');
     }
 
-    const [taskCreatedEvents, taskAssignedEvents, translationSubmittedEvents] = await Promise.all([
+    const [taskCreatedEvents = [], taskAssignedEvents = [], translationSubmittedEvents = []] = await Promise.all([
       _getPastEvents(contract, 'TaskCreated', {
         filter: { _taskID: taskID },
         fromBlock: 0,
