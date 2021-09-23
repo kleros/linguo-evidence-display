@@ -6,7 +6,7 @@ import styled from 'styled-components';
 import { Web3ReactProvider, useWeb3React } from '@web3-react/core';
 import { Spin } from 'antd';
 import Web3 from 'web3';
-import { createNetworkConnector, network as fallbackNetworkConnector } from './connectors';
+import { createNetworkConnector } from './connectors';
 import { withProvider } from './archon';
 import LinguoEvidence from '../pages/LinguoEvidence';
 import { createLinguoApi, LinguoApiProvider, useInjectedParams } from '~/features/linguo';
@@ -31,21 +31,17 @@ export default hot(module)(App);
 
 function Initializer({ children }) {
   const { activate, active, library } = useWeb3React();
-  const { jsonRpcUrl, chainID } = useInjectedParams();
+  const { arbitrableJsonRpcUrl, arbitrableChainID } = useInjectedParams();
 
   const injectedNetworkConnector = React.useMemo(() => {
-    if (jsonRpcUrl && chainID) {
-      return createNetworkConnector({ url: jsonRpcUrl, chainId: chainID });
+    if (arbitrableJsonRpcUrl && arbitrableChainID) {
+      return createNetworkConnector({ url: arbitrableJsonRpcUrl, chainId: arbitrableChainID });
     }
-
-    return null;
-  }, [jsonRpcUrl, chainID]);
+  }, [arbitrableJsonRpcUrl, arbitrableChainID]);
 
   React.useEffect(() => {
     if (injectedNetworkConnector) {
       activate(injectedNetworkConnector);
-    } else {
-      activate(fallbackNetworkConnector);
     }
   }, [activate, injectedNetworkConnector]);
 
